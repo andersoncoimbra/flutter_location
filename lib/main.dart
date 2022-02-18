@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'geolacation/position.dart' as geo;
 
 void main() {
   runApp(const MyApp());
@@ -14,27 +16,54 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Location'),
+      home: const CurrentLocation(title: 'Flutter Demo Location'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+class CurrentLocation extends StatefulWidget {
+  const CurrentLocation({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<CurrentLocation> createState() => _CurrentLocation();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _CurrentLocation extends State<CurrentLocation> {
+  String? currentLocation;
+
+  @override
+  void initState() {
+    _getPosition();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text("Localização"),
       ),
-      body: Text(widget.title),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            (currentLocation != null) ? Text(currentLocation!) : Container()
+          ],
+        ),
+      ),
     );
+  }
+
+  Future<void> _getPosition() async {
+    Position? position = await geo.determinePosition();
+    if (position != null) {
+      setState(() {
+        currentLocation = "Latitude: ${position.latitude}" +
+            " , " +
+            "Logitude: ${position.longitude}";
+      });
+    }
   }
 }
